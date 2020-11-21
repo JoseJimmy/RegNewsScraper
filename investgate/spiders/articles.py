@@ -1,11 +1,7 @@
 import scrapy
-from sqlalchemy.orm import sessionmaker
-from investgate.models import StocksDB, db_connect, create_table
-from investgate.items import EpicNewsLinkItems,NewsItems
-from simhash import Simhash
+from investgate.items import NewsItems
 from scrapy.loader import ItemLoader
 from sqlalchemy.sql import select,desc
-from investgate.models import StocksDB, db_connect,NewsLinkDB
 from investgate.models import StocksDB, db_connect,NewsLinkDB,NewsItemsDB
 import time
 
@@ -47,63 +43,7 @@ class articles(scrapy.Spider):
         yield  loader.load_item()
         
 
-    # def GetScrapeList(self,SessionLimit):
-    #     engine = db_connect()
-    #     connection = engine.connect()
-    #     SessionLinksCount = 0
-    #     s = select([StocksDB.Epic])
-    #     s = s.order_by(StocksDB.Epic)
-    #     rp = connection.execute(s)
-    #     Rows = rp.fetchall()
-    #     #connection.close()
-    #     Tics = [Tic[0] for Tic in Rows]
-    #     #connection = engine.connect()
-    #     ScrapeList=[]
-    #     for Eidx,Row in enumerate(Tics):
-    #         LimitReached = False
-    #         Tic=Row
-    #     #   Tic= 'TSCO'
-    #             # Fetch Urls 
-            
-    #         s = select([NewsLinkDB.Link,NewsLinkDB.UrlHash,NewsLinkDB.Title,NewsLinkDB.Ndate,NewsLinkDB.Link]).where(NewsLinkDB.Epic == Tic)
-    #         s = s.order_by(desc(NewsLinkDB.Ndate))
-    #         Rp = connection.execute(s)
-    #         Urls = Rp.fetchall()
-    #         BaseUrl = 'https://www.investegate.co.uk'
-            
-    #         #[['Epic','Title','UrlHash','Url']]
-    #         SessionLinksPerEpic = SessionLinksCount
-    #         for idx,Url in enumerate(Urls):
-                
-    #             s = select([NewsItemsDB.UrlHash]).where(NewsItemsDB.UrlHash == int(Url.UrlHash))
-    #             Rp = connection.execute(s)
-    #             item = Rp.fetchall()
-    #             if (item != []):
-    #                 pass
-    #                 #item=item[0]
-    #                 #print('%s : %s %s exists , is not scraped'%(Tic,item.Title,item.UrlHash))
 
-    #             else:
-    #                 #print('Adding %s : %s - %s  is to be scraped'%(Tic,str(Url.Ndate),Url.Title))
-    #                 ScrapeList.append([Tic,Url.Title,Url.UrlHash,BaseUrl+Url.Link,str(Url.Ndate)])
-    #                 SessionLinksCount+=1
-    #             if(SessionLinksCount>SessionLimit):
-    #                 LimitReached = True
-    #                 break
-    #         SessionLinksPerEpic = SessionLinksCount - SessionLinksPerEpic 
-    #         print('%d Links from %s to be Scraped <Total #%d>'%(SessionLinksPerEpic,Tic,SessionLinksCount))
-    #         if(LimitReached):
-    #             break
-
-    #     connection.close()
-    #     print('\n'+'+~*'*25)
-    #     print('#'*25)
-    #     print('%s : Total of %d items to be Scraped '%(Tic,len(ScrapeList)))
-    #     print('#'*25)
-    #     print('\n'+'+~*'*25)
-    #     time.sleep(5)
-    #     # Scrape_list=[['Epic','Title','UrlHash','Url','date']]
-    #     return ScrapeList
 
     def GetScrapeList(self,SessionLimit):
         engine = db_connect()
@@ -138,12 +78,7 @@ class articles(scrapy.Spider):
 
         ToScrapeUHashList = list(set(SourceUHashlist) - set(ScrapedUHashlist))
 
-        # for idx, uhash in enumerate(SourceUHashlist):
-        #     if (uhash not in ScrapedUHashlist):
-        #         ToScrapeUHashList.append([uhash, SourceEpiclist[idx]])
-        #         SessionLinksCount += 1
-        #     if (SessionLinksCount > SessionLimit):
-        #         break
+
 
         ScrapeList = []
         SessionLinksCount = 0
@@ -181,5 +116,4 @@ class articles(scrapy.Spider):
         print('==' * 25)
         print('\n' + '+~*' * 25)
         time.sleep(5)
-        # Scrape_list=[['Epic','Title','UrlHash','Url','date']]
         return ScrapeList

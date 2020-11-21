@@ -5,7 +5,6 @@ from investgate.items import EpicNewsLinkItems
 from simhash import Simhash
 from scrapy.loader import ItemLoader
 from datetime import datetime
-from datetime import datetime
 now = datetime.now()
 import time
 class investgate(scrapy.Spider):
@@ -74,21 +73,3 @@ class investgate(scrapy.Spider):
             loader.add_value('Epic', Tic)
             loader.add_value('Sno', Ticno+idx+1)
             yield  loader.load_item()
-            
-
-
-            # loader = ItemLoader(item=StockItems(), selector=row)
-            # loader.add_xpath('Epic', './td[1]//a[@href]/text()')
-            #  #Epic =  row.xpath('./td[1]//a[@href]/text()').get(),
-            # loader.add_xpath('Link', './td[1]//@href')
-            #  #Link = row.xpath('./td[1]//@href').get(),
-            # loader.add_xpath('Name','./td[2]//a[@href]/text()')
-            #  #Name  =   row.xpath('./td[2]//a[@href]/text()').get(),
-            # loader.add_xpath('MktCap', './td[4]/text()')
-            #  #MktCap =  row.xpath('./td[4]/text()').get(),
-            # #loader.add_value(Index)
-            # stock = loader.load_item()
-            #  #Id =  row.xpath('./td[3]/text()').get()
-            # link = row.xpath('./td[1]//@href').get()+'/our-story'
-            # yield response.follow(link, callback = self.parseinfo,meta={'StockItem': stock})
-            
