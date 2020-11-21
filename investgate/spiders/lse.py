@@ -1,0 +1,62 @@
+import scrapy
+from scrapy.loader import ItemLoader
+from investgate.items import StockItems
+
+class LseSpider(scrapy.Spider):
+
+
+    name = 'lse'
+    allowed_domains = ['www.londonstockexchange.com']
+    # FirstPage= 'https://www.londonstockexchange.com/indices/ftse-350/constituents/table'
+    # start_urls = [FirstPage] +['https://www.londonstockexchange.com/indices/ftse-350/constituents/table?page=%d'% (page) for page in range(2,19)]
+    FirstPage= 'https://www.londonstockexchange.com/indices/ftse-all-share/constituents/table'
+    start_urls = [FirstPage] +['https://www.londonstockexchange.com/indices/ftse-all-share/constituents/table?page=%d'% (page) for page in range(2,32)]
+
+
+
+    def parse(self, response):
+        self.logger.info('==============================================')
+        self.logger.info('==============================================')
+        self.logger.info('==============================================')
+        self.logger.info('Fetch : '+response.url)
+        self.logger.info('==============================================')
+        self.logger.info('==============================================')
+        self.logger.info('==============================================')
+        rows = response.xpath('//*[@id="ftse-index-table"]/table/tbody/tr')
+        for row in rows:
+            loader = ItemLoader(item=StockItems(), selector=row)
+            loader.add_xpath('Epic', './td[1]//a[@href]/text()')
+             #Epic =  row.xpath('./td[1]//a[@href]/text()').get(),
+            loader.add_xpath('Link', './td[1]//@href')
+             #Link = row.xpath('./td[1]//@href').get(),
+            loader.add_xpath('Name','./td[2]//a[@href]/text()')
+             #Name  =   row.xpath('./td[2]//a[@href]/text()').get(),
+            loader.add_xpath('MktCap', './td[4]/text()')
+             #MktCap =  row.xpath('./td[4]/text()').get(),
+            #loader.add_value(Index)
+            stock = loader.load_item()
+             #Id =  row.xpath('./td[3]/text()').get()
+            link = row.xpath('./td[1]//@href').get()+'/our-story'
+            yield response.follow(link, callback = self.parseinfo,meta={'StockItem': stock})
+            
+
+
+    def parseinfo(self, response):
+        StockItem = response.meta['StockItem']
+        loader = ItemLoader(item=StockItem, response=response)
+        
+        #loader.add_xpath('Epic', './td[1]//a[@href]/text()')
+        #'Industry' : response.xpath('//*[@id="ccc-data-ftse-industry"]/div[2]/text()').get(),
+        loader.add_xpath('Industry', '//*[@id="ccc-data-ftse-industry"]/div[2]/text()')
+
+        #'SupSector' : response.xpath('//*[@id="ccc-data-ftse-supersector"]/div[2]/text()').get(),
+        loader.add_xpath('SupSector','//*[@id="ccc-data-ftse-supersector"]/div[2]/text()')
+
+        #'Sector' : response.xpath('//*[@id="ccc-data-ftse-sector"]/div[2]/text()').get(),
+        loader.add_xpath('Sector', '//*[@id="ccc-data-ftse-sector"]/div[2]/text()')
+
+        #'SubSector' : response.xpath('//*[@id="ccc-data-ftse-subsector"]/div[2]/text()').get()
+        loader.add_xpath('SubSector', '//*[@id="ccc-data-ftse-subsector"]/div[2]/text()')
+        yield loader.load_item()
+
+        
