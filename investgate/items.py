@@ -37,8 +37,8 @@ def u2inthash(h):
     return (int(h))
 
 def StrProcess(art):
-    return art.strip().replace('\\xF4\\x80\\x83\\xA4','')
-
+    art =  art.strip().replace('\\xF4\\x80\\x83\\xA4','')
+    return art.encode()
 
 class StockItems(scrapy.Item):
     # define the fields for your item here like:

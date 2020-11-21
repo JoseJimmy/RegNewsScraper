@@ -13,7 +13,7 @@ class articles(scrapy.Spider):
     def start_requests(self):
         SessionLimit=260000
         ScrapeList = self.GetScrapeList(SessionLimit)
-        for idx,i in enumerate(ScrapeList[0:-1]):
+        for idx,i in enumerate(ScrapeList[1:-1]):
             Epic = i[0]
             Title = i[1]
             Uhash = i[2]
