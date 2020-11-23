@@ -11,6 +11,7 @@ from datetime import datetime
 
 def MktCapClean(text):
     # strip the unicode quotes
+    text=text.strip().replace('-', '0')
     return float(text.replace(',',''))
 
 
@@ -41,27 +42,27 @@ def StrProcess(art):
     return art.encode()
 
 class StockItems(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field(output_processor=TakeFirst())
-    #Id = scrapy.Field(output_processor=TakeFirst())
     Epic = scrapy.Field(input_processor=MapCompose(str.strip),output_processor=TakeFirst())
-    Link = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
     Name = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
     MktCap = scrapy.Field( input_processor=MapCompose(MktCapClean),output_processor=TakeFirst())
     Industry = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
     SupSector = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
     SubSector = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
     Sector = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
-    Industry = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
+    def __str__(self):
+        return ""
+
+
 
 class EpicNewsLinkItems(scrapy.Item):
-    UrlHash = scrapy.Field(input_processor=MapCompose(u2inthash),output_processor=TakeFirst())
+    UrlHash = scrapy.Field( output_processor=TakeFirst())
     Epic = scrapy.Field(input_processor=MapCompose(str.strip),output_processor=TakeFirst())
     Link = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
     Title = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
     Sno = scrapy.Field( output_processor=TakeFirst())
     Ndate = scrapy.Field( input_processor=MapCompose(convert_date),output_processor=TakeFirst())
     Ntime = scrapy.Field( input_processor=MapCompose(convert_time),output_processor=TakeFirst())
+    Source = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
 
     def __str__(self):
         return ""

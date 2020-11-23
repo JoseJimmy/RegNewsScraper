@@ -2,7 +2,7 @@ import scrapy
 from investgate.items import NewsItems
 from scrapy.loader import ItemLoader
 from sqlalchemy.sql import select,desc
-from investgate.models import StocksDB, db_connect,NewsLinkDB,NewsItemsDB
+from investgate.models import EpicInfo, db_connect,NewsLinkDB,NewsItemsDB
 import time
 
 class articles(scrapy.Spider):

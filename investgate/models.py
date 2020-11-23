@@ -20,11 +20,9 @@ def create_table(engine):
     DeclarativeBase.metadata.create_all(engine)
 
 
-
-
-class StocksDB(DeclarativeBase):
-    __tablename__ = "FTSEAllshares"
-    #id = Column(CHAR(6))
+class EpicInfo(DeclarativeBase):
+    __tablename__ = "EpicInfo"
+    id = Column(Integer, primary_key=True , autoincrement=True)
     Epic = Column(String(6),primary_key=True)
     Name = Column(String(300))
     MktCap = Column(Float)
@@ -34,18 +32,21 @@ class StocksDB(DeclarativeBase):
     Sector = Column(String(100))
 
 class NewsLinkDB(DeclarativeBase):
-    __tablename__ = "Artlinks"
+    __tablename__ = "NewsLinks"
     Epic = Column('Epic',String(6))
     Link = Column('Link',String(400))
     Ndate = Column('Ndate',Date)
     Ntime = Column('Ntime',Time)
     Title = Column('Title',String(400))
-    UrlHash = Column('UrlHash',Numeric(35,0),primary_key=True)
+    UrlHash = Column('UrlHash',Numeric(12,0),primary_key=True)
     Sno = Column('Sno',BigInteger)
+    Source = Column('Source',String(10))
+
     
 class NewsItemsDB(DeclarativeBase):
     __tablename__ = "Articles"
-    UrlHash = Column('UrlHash',Numeric(35,0),primary_key=True)
+    UrlHash = Column('UrlHash',Numeric(12,0),primary_key=True)
     Title = Column('Title',String(400))
     Epic = Column('Epic',String(6))
     Article = Column('Article', LONGTEXT)
+    Link = Column('Link',String(400))
