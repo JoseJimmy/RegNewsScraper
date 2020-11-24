@@ -11,8 +11,9 @@ class articles(scrapy.Spider):
     custom_settings = {'ITEM_PIPELINES': {'investgate.pipelines.ArticlesPipeline': 300}}
 
     def start_requests(self):
-        SessionLimit=260000
+        SessionLimit=200000
         ScrapeList = self.GetScrapeList(SessionLimit)
+        BaseUrl = 'https://www.investegate.co.uk'
         for idx,i in enumerate(ScrapeList[1:-1]):
             Epic = i[0]
             Title = i[1]
@@ -22,7 +23,7 @@ class articles(scrapy.Spider):
             print('\n'+'#~#'*25)
             print('Requesting <Item#%d of %d> Epic %s- %s : %s'%(idx,len(ScrapeList),Epic,udate,Title))
             print('#~#*'*25+'\n')
-            yield scrapy.Request(Link, self.parse,meta={'Tic': Epic,'Uhash': Uhash,'Title':Title})
+            yield scrapy.Request(BaseUrl+Link, self.parse,meta={'Tic': Epic,'Uhash': Uhash,'Link':Link})
 
 
     def parse(self, response):
@@ -31,7 +32,7 @@ class articles(scrapy.Spider):
             
         Tic = response.request.meta['Tic']
         Uhash = int(response.request.meta['Uhash'])
-        Title = response.request.meta['Title']
+        Link = response.request.meta['Link']
         loader = ItemLoader(item=NewsItems(), response=response)
         print('User Agent :', response.request.headers['User-Agent'])
 
@@ -39,7 +40,7 @@ class articles(scrapy.Spider):
         loader.add_xpath('Article', '//*[@id="ArticleContent"]')
         loader.add_value('UrlHash',Uhash)#Simhash(link).value)
         loader.add_value('Epic', Tic)
-        loader.add_value('Title', Title)
+        loader.add_value('Link', Link)
         yield  loader.load_item()
         
 
@@ -49,8 +50,8 @@ class articles(scrapy.Spider):
         engine = db_connect()
         connection = engine.connect()
         SessionLinksCount = 0
-        s = select([StocksDB.Epic])
-        s = s.order_by(StocksDB.Epic)
+        s = select([NewsItemsDB.Epic])
+        s = s.order_by(NewsItemsDB.Epic)
         rp = connection.execute(s)
         Rows = rp.fetchall()
         # connection.close()
@@ -93,9 +94,9 @@ class articles(scrapy.Spider):
             Rp = connection.execute(s)
             results = Rp.first()
             url = results
-            BaseUrl = 'https://www.investegate.co.uk'
+
             # [['Epic','Title','UrlHash','Url']]
-            ScrapeList.append([url.Epic, url.Title, url.UrlHash, BaseUrl + url.Link, str(url.Ndate)])
+            ScrapeList.append([url.Epic, url.Title, url.UrlHash,  url.Link, str(url.Ndate)])
             tic = url.Epic
             if (tic in EpicLinkCount):
                 EpicLinkCount[url.Epic] += 1

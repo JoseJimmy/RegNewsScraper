@@ -71,7 +71,7 @@ class EpicNewsLinkItems(scrapy.Item):
 
 class NewsItems(scrapy.Item):
     UrlHash = scrapy.Field(input_processor=MapCompose(u2int),output_processor=TakeFirst())
-    Title = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
+    Link = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
     Epic = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
     Article = scrapy.Field(input_processor=MapCompose(StrProcess),output_processor=TakeFirst())
     

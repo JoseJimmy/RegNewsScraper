@@ -55,7 +55,7 @@ class StockDBPipeline(object):
 
 
 class rnslinksPipeline(object):
-    #prev_date=datetime.strptime('01 Jan 1901', '%d %b %Y').date()
+
 
     def __init__(self):
         """
@@ -66,8 +66,7 @@ class rnslinksPipeline(object):
         create_table(engine)
         Session = sessionmaker(bind=engine)
         self.session = Session()
-        self.session = Session()
-        self.prev_date=datetime.strptime('01 Jan 1999', '%d %b %Y').date()
+        self.ItemsAddedCount=0
 
 
     def close_spider(self, spider):
@@ -79,25 +78,34 @@ class rnslinksPipeline(object):
             raise
         finally:
             self.session.close()
+        now = datetime.now()
+        f = open("rnslinks_log.csv", "a")
+        f.write((now.strftime("%H:%M:%S,") + " ,Items Added ,%d\n")%(self.ItemsAddedCount))
+        f.close()
 
 
     def process_item(self, item, spider):
 
         item_exists = self.session.query(NewsLinkDB).filter_by(UrlHash=item['UrlHash']).first()
         if item_exists:
-            # item_exists.Ndate = item["Ndate"]
-            # item_exists.Ntime = item["Ntime"]
-            # item_exists.Title = item["Title"]
+
+            #item_exists.Ndate = NewsLinkDB(**item)
+            # # item_exists.Ntime = item["Ntime"]
+            # # item_exists.Title = item["Title"]
             item_exists.Sno = item["Sno"]
-            item_exists.Source = item["Source"]
+            # item_exists.Source = item["Source"]
+            #print('UPDATED Item {} : {} - {} into {}  '.format(item['Epic'],item['Sno'],item['UrlHash'],item_exists.UrlHash))
+            self.session.commit()
         else:
             new_item = NewsLinkDB(**item)
             self.session.add(new_item)
+            print('ADDING Item {} : {} - {} - {}'.format(item['Epic'], item['Sno'], item['UrlHash'], item['Ntime']))
             try:
                 self.session.commit()
             except:
                 self.session.rollback()
                 raise
+            self.ItemsAddedCount+=1
         return item
 
         #merged_x = self.session.merge(new_item)
@@ -153,7 +161,7 @@ class ArticlesPipeline(object):
             new_item = NewsItemsDB(**item)
             self.session.add(new_item)
             print('-'*25)
-            print('ADDING Item no {} - {} - {} '.format(self.Count,item['Epic'],item['Title']))
+            print('ADDING Item no {} - {} -  '.format(self.Count,item['Epic']))
 
         try:
             

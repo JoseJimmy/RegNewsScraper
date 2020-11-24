@@ -44,9 +44,10 @@ class NewsLinkDB(DeclarativeBase):
 
     
 class NewsItemsDB(DeclarativeBase):
-    __tablename__ = "Articles"
+    __tablename__ = "NewsItems"
     UrlHash = Column('UrlHash',Numeric(12,0),primary_key=True)
-    Title = Column('Title',String(400))
     Epic = Column('Epic',String(6))
     Article = Column('Article', LONGTEXT)
     Link = Column('Link',String(400))
+
+

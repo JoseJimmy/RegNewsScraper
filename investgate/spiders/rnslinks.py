@@ -5,7 +5,7 @@ from investgate.items import EpicNewsLinkItems
 from simhash import Simhash
 from scrapy.loader import ItemLoader
 from datetime import datetime
-now = datetime.now()
+
 import time
 import zlib
 class investgate(scrapy.Spider):
@@ -22,7 +22,7 @@ class investgate(scrapy.Spider):
         StartUrls=[]
         EpicId={}
         Epics=[]
-        CustomList = []
+        CustomList = ['AUTO', 'CLG', 'EVR', 'HTG', 'IPO', 'JAM']
         for instance in session.query(EpicInfo).order_by(EpicInfo.Epic.asc()):
             StartUrls.append(EpicUrl % (instance.Epic))
             Epics.append(instance.Epic)
@@ -47,7 +47,8 @@ class investgate(scrapy.Spider):
             yield scrapy.Request(url, self.parse,priority =idx+1, meta={'Tic':Tic,'Ticno':EpicId[Tic]})
         #yield scrapy.Request(StartUrls[2], self.parse,meta={'Tic': Epics[2],'TicNo':3})
 
-    def parse(self, response):   
+    def parse(self, response):
+        now = datetime.now()
         Tic = response.request.meta['Tic']
         Ticno = response.request.meta['Ticno']*100000000
 
