@@ -1,6 +1,6 @@
 import scrapy
 from scrapy.loader import ItemLoader
-from investgate.items import StockItems
+from investgate.items import StockInfoItems
 
 class LseSpider(scrapy.Spider):
 
@@ -19,7 +19,7 @@ class LseSpider(scrapy.Spider):
     def parse(self, response):
         rows = response.xpath('//*[@id="ftse-index-table"]/table/tbody/tr')
         for row in rows:
-            loader = ItemLoader(item=StockItems(), selector=row)
+            loader = ItemLoader(item=StockInfoItems(), selector=row)
             loader.add_xpath('Epic', './td[1]//a[@href]/text()')
              #Epic =  row.xpath('./td[1]//a[@href]/text()').get(),
              #Link = row.xpath('./td[1]//@href').get(),

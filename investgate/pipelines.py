@@ -8,10 +8,12 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 from sqlalchemy.orm import sessionmaker
-from investgate.models import EpicInfo, db_connect, create_table,NewsLinkDB,NewsItemsDB
+from investgate.models import StockInfoTable, db_connect, create_table,ArticlesTable,NewsLinksTable
 from time import sleep
 from simhash import Simhash
 from datetime import datetime
+from investgate.items import NewsItems
+
 
 
 class StockDBPipeline(object):
@@ -42,13 +44,13 @@ class StockDBPipeline(object):
 
         This method is called for every item pipeline component.
         """
-        item_exists = self.session.query(EpicInfo).filter_by(Epic=item['Epic']).first()
+        item_exists = self.session.query(StockInfoTable).filter_by(Epic=item['Epic']).first()
         if item_exists:
             item_exists.MktCap = item["MktCap"]
             print('UPDATED Item {} - MarketCao {}'.format(item['Epic'],item['MktCap']))
         # if not - we insert new item to DB
         else:
-            new_item = EpicInfo(**item)
+            new_item = StockInfoTable(**item)
             self.session.add(new_item)
             print('ADDING Item {} - {} - {}'.format(item['Epic'],item['Name'],item['Industry']))
         return item
@@ -74,6 +76,7 @@ class rnslinksPipeline(object):
         try:
             self.session.commit()
         except:
+
             self.session.rollback()
             raise
         finally:
@@ -86,7 +89,7 @@ class rnslinksPipeline(object):
 
     def process_item(self, item, spider):
 
-        item_exists = self.session.query(NewsLinkDB).filter_by(UrlHash=item['UrlHash']).first()
+        item_exists = self.session.query(NewsLinksTable).filter_by(UrlHash=item['UrlHash']).first()
         if item_exists:
 
             #item_exists.Ndate = NewsLinkDB(**item)
@@ -97,7 +100,7 @@ class rnslinksPipeline(object):
             #print('UPDATED Item {} : {} - {} into {}  '.format(item['Epic'],item['Sno'],item['UrlHash'],item_exists.UrlHash))
             self.session.commit()
         else:
-            new_item = NewsLinkDB(**item)
+            new_item = NewsLinksTable(**item)
             self.session.add(new_item)
             print('ADDING Item {} : {} - {} - {}'.format(item['Epic'], item['Sno'], item['UrlHash'], item['Ntime']))
             try:
@@ -148,24 +151,33 @@ class ArticlesPipeline(object):
     def close_spider(self, spider):
         # We commit and save all items to DB when spider finished scraping.
         self.session.close()
+        print('==============================================')
+        print('Scraped  %d news articles  '%self.Count)
+        print('==============================================')
         
     def process_item(self, item, spider):
-        item_exists = self.session.query(NewsItemsDB).filter_by(UrlHash=item['UrlHash']).first()
+        item_exists = self.session.query(ArticlesTable).filter_by(UrlHash=item['UrlHash']).first()
         # if item exists in DB - we just update 'date' and 'subs' columns.
         if item_exists:
             print('Item exists , not UPDATED Item ')
             print('#'*50)
             return item  
         # if not - we insert new item to DB
-        else:     
-            new_item = NewsItemsDB(**item)
+
+        else:
+            item['SHash'] = Simhash(item['SHash']).value
+            item['Artlen'] = len(item['Article'])
+            new_item = ArticlesTable(**item)
+
+
+
             self.session.add(new_item)
             print('-'*25)
-            print('ADDING Item no {} - {} -  '.format(self.Count,item['Epic']))
+            print('ADDING Item no {} - {} -  '.format(self.Count,item['UrlHash']))
 
         try:
             
-#            print('Starting commit of #'+str(self.Count))
+#           print('Starting commit of # %s %d '+str(self.Count))
             self.session.commit()
         except:
             self.session.rollback()

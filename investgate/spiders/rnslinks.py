@@ -1,7 +1,7 @@
 import scrapy
 from sqlalchemy.orm import sessionmaker
-from investgate.models import EpicInfo, db_connect, create_table
-from investgate.items import EpicNewsLinkItems
+from investgate.models import StockInfoTable, db_connect, create_table
+from investgate.items import NewsLinkItems
 from simhash import Simhash
 from scrapy.loader import ItemLoader
 from datetime import datetime
@@ -22,8 +22,8 @@ class investgate(scrapy.Spider):
         StartUrls=[]
         EpicId={}
         Epics=[]
-        CustomList = ['AUTO', 'CLG', 'EVR', 'HTG', 'IPO', 'JAM']
-        for instance in session.query(EpicInfo).order_by(EpicInfo.Epic.asc()):
+        CustomList = []
+        for instance in session.query(StockInfoTable).order_by(StockInfoTable.Epic.asc()):
             StartUrls.append(EpicUrl % (instance.Epic))
             Epics.append(instance.Epic)
             EpicId[instance.Epic] = instance.id
@@ -53,7 +53,7 @@ class investgate(scrapy.Spider):
         Ticno = response.request.meta['Ticno']*100000000
 
 
-        item = EpicNewsLinkItems()
+        item = NewsLinkItems()
         dates=[]
         rows = response.xpath('//table[@id="announcementList"]//tr')[2:]
         if (response.status==200):
@@ -67,7 +67,7 @@ class investgate(scrapy.Spider):
             f.close()
         ndates=[]
         for idx,row in enumerate(rows): #range(2,3):#len(response.xpath('//table[@id="announcementList"]//tr'))):
-            loader = ItemLoader(item=EpicNewsLinkItems(), selector=row)
+            loader = ItemLoader(item=NewsLinkItems(), selector=row)
             ndates.append(row.xpath('./td[1]/text()').get())
 
             if(len(ndates[idx])<3):

@@ -6,6 +6,9 @@ import scrapy
 from scrapy.item import Item, Field
 from itemloaders.processors import MapCompose , TakeFirst
 from simhash import Simhash
+from bs4 import BeautifulSoup
+
+
 
 from datetime import datetime
 
@@ -39,9 +42,17 @@ def u2inthash(h):
 
 def StrProcess(art):
     art =  art.strip().replace('\\xF4\\x80\\x83\\xA4','')
+    try:
+        soup = BeautifulSoup(art, 'lxml')
+        art = soup.prettify()
+        doc = Document(art)
+        art = doc.summary(art)
+    except:
+        art='ERROR IN PROCESSING ARTICLE'
     return art.encode()
 
-class StockItems(scrapy.Item):
+
+class StockInfoItems(scrapy.Item):
     Epic = scrapy.Field(input_processor=MapCompose(str.strip),output_processor=TakeFirst())
     Name = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
     MktCap = scrapy.Field( input_processor=MapCompose(MktCapClean),output_processor=TakeFirst())
@@ -54,7 +65,7 @@ class StockItems(scrapy.Item):
 
 
 
-class EpicNewsLinkItems(scrapy.Item):
+class NewsLinkItems(scrapy.Item):
     UrlHash = scrapy.Field( output_processor=TakeFirst())
     Epic = scrapy.Field(input_processor=MapCompose(str.strip),output_processor=TakeFirst())
     Link = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
@@ -74,9 +85,13 @@ class NewsItems(scrapy.Item):
     Link = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
     Epic = scrapy.Field( input_processor=MapCompose(str.strip),output_processor=TakeFirst())
     Article = scrapy.Field(input_processor=MapCompose(StrProcess),output_processor=TakeFirst())
-    
+    SHash = scrapy.Field( input_processor=MapCompose(u2int),output_processor=TakeFirst())
+    Artlen = scrapy.Field(input_processor=MapCompose(u2int),output_processor=TakeFirst())
+
     def __str__(self):
         return ""
+
+
 
     # def __repr__(self):
     #     """only print out attr1 after exiting the Pipeline"""

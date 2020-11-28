@@ -2,7 +2,7 @@ import scrapy
 from investgate.items import NewsItems
 from scrapy.loader import ItemLoader
 from sqlalchemy.sql import select,desc
-from investgate.models import EpicInfo, db_connect,NewsLinkDB,NewsItemsDB
+from investgate.models import StockInfoTable, db_connect,ArticlesTable,NewsLinksTable
 import time
 
 class articles(scrapy.Spider):
@@ -41,17 +41,18 @@ class articles(scrapy.Spider):
         loader.add_value('UrlHash',Uhash)#Simhash(link).value)
         loader.add_value('Epic', Tic)
         loader.add_value('Link', Link)
+        loader.add_value('SHash', 0)
+        loader.add_value('Artlen', 0)
         yield  loader.load_item()
         
-
 
 
     def GetScrapeList(self,SessionLimit):
         engine = db_connect()
         connection = engine.connect()
         SessionLinksCount = 0
-        s = select([NewsItemsDB.Epic])
-        s = s.order_by(NewsItemsDB.Epic)
+        s = select([ArticlesTable.Epic])
+        s = s.order_by(ArticlesTable.Epic)
         rp = connection.execute(s)
         Rows = rp.fetchall()
         # connection.close()
@@ -59,21 +60,26 @@ class articles(scrapy.Spider):
         # connection = engine.connect()
 
         ### First get all hashes from articles
-        s = select([NewsItemsDB.UrlHash])
+        print('Get all hashes from articles  DB....', end='')
+        s = select([ArticlesTable.UrlHash])
         Rp = connection.execute(s)
         Rp = Rp.fetchall()
         ScrapedUHashlist = []
+        print('Done')
         for item in Rp:
             ScrapedUHashlist.append(int(item.UrlHash))
         ###  get all hashes from source
+        print('Get all hashes from article.... DB', end='')
 
-        s = select([NewsLinkDB.UrlHash])
+        s = select([NewsLinksTable.UrlHash])
         Rp = connection.execute(s)
         results = Rp.fetchall()
         SourceUHashlist = []
         SourceEpiclist = []
         for item in results:
             SourceUHashlist.append(int(item.UrlHash))
+        print('Done')
+
 
         SessionLinksCount = 0
 
@@ -89,8 +95,8 @@ class articles(scrapy.Spider):
         for item in (ToScrapeUHashList):
             print('\b' * 10, end='')
             s = select(
-                [NewsLinkDB.Epic, NewsLinkDB.UrlHash, NewsLinkDB.Title, NewsLinkDB.Ndate, NewsLinkDB.Link]).where(
-                NewsLinkDB.UrlHash == (item))
+                [NewsLinksTable.Epic, NewsLinksTable.UrlHash, NewsLinksTable.Title, NewsLinksTable.Ndate, NewsLinksTable.Link]).where(
+                NewsLinksTable.UrlHash == (item))
             Rp = connection.execute(s)
             results = Rp.first()
             url = results

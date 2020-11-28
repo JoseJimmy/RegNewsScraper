@@ -20,7 +20,7 @@ def create_table(engine):
     DeclarativeBase.metadata.create_all(engine)
 
 
-class EpicInfo(DeclarativeBase):
+class StockInfoTable(DeclarativeBase):
     __tablename__ = "EpicInfo"
     id = Column(Integer, primary_key=True , autoincrement=True)
     Epic = Column(String(6),primary_key=True)
@@ -31,7 +31,7 @@ class EpicInfo(DeclarativeBase):
     SubSector = Column(String(100))
     Sector = Column(String(100))
 
-class NewsLinkDB(DeclarativeBase):
+class NewsLinksTable(DeclarativeBase):
     __tablename__ = "NewsLinks"
     Epic = Column('Epic',String(6))
     Link = Column('Link',String(400))
@@ -43,11 +43,25 @@ class NewsLinkDB(DeclarativeBase):
     Source = Column('Source',String(10))
 
     
-class NewsItemsDB(DeclarativeBase):
-    __tablename__ = "NewsItems"
-    UrlHash = Column('UrlHash',Numeric(12,0),primary_key=True)
-    Epic = Column('Epic',String(6))
+
+
+class ArticlesTable(DeclarativeBase):
+    __tablename__ = "newsitemscl"
+    UrlHash = Column('UrlHash', Numeric(12, 0), primary_key=True)
+    SHash = Column('SHash', Numeric(40, 0))
+    Epic = Column('Epic', String(6))
     Article = Column('Article', LONGTEXT)
-    Link = Column('Link',String(400))
+    Link = Column('Link', String(400))
+    Artlen = Column('Artlen', Numeric(10, 0))
+
+    def __str__(self):
+        return ""
 
 
+
+#class NewsItemsDB(DeclarativeBase):
+    # __tablename__ = "NewsItems"
+    # UrlHash = Column('UrlHash',Numeric(12,0),primary_key=True)
+    # Epic = Column('Epic',String(6))
+    # Article = Column('Article', LONGTEXT)
+    # Link = Column('Link',String(400))
