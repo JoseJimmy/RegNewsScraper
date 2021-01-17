@@ -18,10 +18,10 @@ LOG_LEVEL = 'INFO'
 
 CONNECTION_STRING = "{drivername}://{user}:{passwd}@{host}:{port}/{db_name}?charset=utf8".format(
     drivername="mysql",
-    user="jjimmy",
-    passwd="jjjj",
+    user="#####",
+    passwd="#####",
     host="localhost",
-    port="1981",
+    port="#####",
     db_name="rns",
 )
 
